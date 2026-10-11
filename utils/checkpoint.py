@@ -5,7 +5,6 @@ Handles model state, optimizer state, scheduler state, and training
 metadata for seamless training resumption.
 """
 
-import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 

@@ -17,9 +17,7 @@ Improvements over vanilla DivideMix:
     - Confidence threshold as additional filter
 """
 
-import numpy as np
 import torch
-import torch.nn.functional as F
 from sklearn.mixture import GaussianMixture
 
 

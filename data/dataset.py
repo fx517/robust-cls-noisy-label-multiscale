@@ -5,7 +5,6 @@ The ELR loss requires sample indices to maintain per-sample EMA targets.
 This dataset wraps standard image folders and returns (image, label, index).
 """
 
-import os
 from collections import defaultdict
 from pathlib import Path
 from typing import Optional, Tuple, List, Callable

@@ -24,7 +24,6 @@ Usage:
 """
 
 import argparse
-import sys
 
 import torch
 

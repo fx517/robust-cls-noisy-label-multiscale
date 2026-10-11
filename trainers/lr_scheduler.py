@@ -5,14 +5,11 @@ Supports cosine annealing with warmup, step decay, and plateau-based scheduling.
 """
 
 import math
-import torch
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import (
-    CosineAnnealingLR,
     StepLR,
     ReduceLROnPlateau,
     OneCycleLR,
-    LambdaLR,
     _LRScheduler,
 )
 

@@ -6,7 +6,7 @@ Modify via command-line overrides or by creating dataset-specific configs.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple
 
 
 @dataclass

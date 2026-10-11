@@ -1,0 +1,22 @@
+name: syntax-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  byte-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+      - name: Byte-compile all Python sources
+        run: python -m compileall -q main.py config data losses models scripts trainers utils
+      - name: Check shell script syntax
+        run: for f in scripts/*.sh; do bash -n "$f"; done

@@ -10,6 +10,7 @@
 ![Task](https://img.shields.io/badge/Task-750--class%20Noisy--label-8957e5?style=flat-square)
 ![Leaderboard](https://img.shields.io/badge/Leaderboard%20Top--1-71-brightgreen?style=flat-square)
 ![Balanced holdout](https://img.shields.io/badge/Balanced%20holdout%20(TTA)-75.09%25-success?style=flat-square)
+![CI](https://github.com/fx517/robust-cls-noisy-label-multiscale/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 
 </div>
@@ -44,6 +45,16 @@ Notes:
 - The **stratified class-balanced holdout** (9:1 per-class split, seed 42, at least one held-out sample per class) is the honest offline protocol: same distribution as the official balanced test set, labels held out from training.
 - **MultiScaleTTA** (2 scales × TenCrop with flips = 20 views) adds a stable **+0.84 pt** on the balanced holdout without changing the model.
 - Full experiment logs, ablations and scale sweeps: [`docs/results.md`](docs/results.md).
+
+## Released checkpoint
+
+The submitted weights are attached to the [`v1.0.0` release](https://github.com/fx517/robust-cls-noisy-label-multiscale/releases/tag/v1.0.0):
+
+- [`swa_model.pth`](https://github.com/fx517/robust-cls-noisy-label-multiscale/releases/download/v1.0.0/swa_model.pth) — 640,664,250 bytes · SHA-256 `5245bd1082d66ac2d5431d092b483a34de85c40f2e571b64af3a694f8baea81e`
+
+`scripts/predict_test.py` and `scripts/eval_balanced_val.py` rebuild the architecture from
+the config stored inside the checkpoint (image size 384 included), so the file can be used
+directly — see Quick start §5 for the exact commands.
 
 ## Highlights
 
@@ -86,6 +97,7 @@ Key components (full details and equations in [`docs/technical-report.md`](docs/
 
 ```
 .
+├── .github/workflows/       # CI: byte-compile + shell script checks
 ├── main.py                  # single entry point: train / evaluate / noise detection
 ├── config/                  # dataclass configuration (all hyperparameters)
 ├── data/                    # indexed dataset, transforms, MixUp/CutMix collator, sampler

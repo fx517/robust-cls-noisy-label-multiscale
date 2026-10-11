@@ -10,7 +10,6 @@ Each "image" is a 224x224 RGB tensor with class-specific noise patterns,
 simulating real data structure for quick pipeline verification.
 """
 
-import os
 import random
 import numpy as np
 from pathlib import Path

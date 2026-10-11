@@ -15,7 +15,6 @@ from pathlib import Path
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 
-from config import get_config
 from models import CLIPLoRAModel
 from data.dataset import IndexedImageDataset
 from data.transforms import get_test_transforms
