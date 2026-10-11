@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Training artifacts
+outputs/
+logs/
+runs/
+wandb/
+tf-logs/
+*.pth
+*.ckpt
+*.npz
+*.pt
+
+# Downloaded datasets, weights and archives (see README "Data preparation")
+data/train/
+data/test/
+data/WebFG-400/
+data/WebiNat-5000/
+data/*.zip
+data/*.tar
+data/*.bin
+
+# Raw prediction dumps at repo root (the released artifact lives in results/)
+/pred_results*.csv
+/pred_results*.zip
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
