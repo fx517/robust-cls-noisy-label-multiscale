@@ -42,10 +42,13 @@ stays exact. See `data/transforms.py::MixUpCutMixCollator`.
 
 ### 3. Where is LoRA applied?
 
-By default on `q_proj`, `v_proj`, `k_proj`, `out_proj` and the MLP projections
-(`c_fc`, `c_proj`) of the frozen ViT — the attention projections and MLP are where the
-adapter capacity matters most in practice. Configured via
-`model.lora_target_modules`.
+`model.lora_target_modules` names the usual suspects (`q_proj`, `v_proj`, `k_proj`,
+`out_proj`, `c_fc`, `c_proj`), and the adapter hook replaces every matching `nn.Linear` in
+the frozen ViT. In practice open_clip's CLIP attention stores q/k/v as a single fused
+`in_proj` parameter (`nn.MultiheadAttention`), so only three layers per block match:
+`attn.out_proj`, `mlp.c_fc` and `mlp.c_proj` — **36 adapted layers** across the 12 blocks
+(the training log prints `[LoRA] Applied LoRA to 36 layers`). The attention output
+projection and the MLP are where the adapter capacity matters most in practice.
 
 ### 4. Why a cosine head with `hidden_dim = 512`?
 

@@ -47,7 +47,7 @@ Notes:
 
 ## Highlights
 
-- **Parameter-efficient adaptation** — frozen CLIP ViT-B/32 with LoRA (r=64, α=64) injected into the attention (q/v/k/out) and MLP (c_fc/c_proj) projections (36 layers); ≈8.4M trainable parameters (5.25% of 160.6M).
+- **Parameter-efficient adaptation** — frozen CLIP ViT-B/32 with LoRA (r=64, α=64) injected into 36 linear layers: `attn.out_proj` plus the MLP projections (`c_fc`, `c_proj`) of every one of the 12 transformer blocks (open_clip's CLIP attention keeps q/k/v fused in a single `in_proj` parameter, so they carry no adapters); ≈8.4M trainable parameters (5.25% of the ≈160M total).
 - **Zero-shot classifier prior** — cosine-prototype head built directly in CLIP's 512-d feature space (no projection), initialized from CLIP text-encoder prototypes of the class names, and kept as a frozen anchor for soft-label distillation.
 - **Composite noise-robust losses** — ELR (early-learning regularization) + DSPT (dual-softmax, gradient suppression for anomaly samples) + DeFT-inspired clean soft labels from the frozen zero-shot anchor + SupCon on clean samples + semi-supervised pseudo-label regularization on the noisy subset.
 - **DivideMix-style dynamic sample selection** — per-sample loss history fitted with a 2-component GMM to separate clean / noisy samples online, driving contrastive learning and pseudo-labeling.
@@ -60,11 +60,11 @@ Notes:
 
 ```mermaid
 flowchart TD
-    A["Input image (384 x 384)"] --> B["Frozen CLIP ViT-B/32 visual encoder<br/>+ LoRA adapters (36 layers, r=64, alpha=64)"]
+    A["Input image (384 x 384)"] --> B["Frozen CLIP ViT-B/32 visual encoder (12 blocks)<br/>+ LoRA (r=64, alpha=64) on attn.out_proj and MLP (c_fc, c_proj)<br/>36 adapted layers"]
     B --> F["512-d L2-normalized features"]
-    F --> C1["Cosine prototype head<br/>zero-shot init from CLIP text encoder"]
+    F --> C1["Cosine prototype head (750 prototypes)<br/>zero-shot init from CLIP text encoder<br/>frozen zero-shot anchor for DeFT"]
     F --> C2["CoOp prompt learner<br/>learnable text prototypes (n_ctx=16)"]
-    C1 --> L["Logits (sigmoid-bounded fusion, init -1.0)"]
+    C1 --> L["Logits = (1 - w) x visual + w x text<br/>w = sigmoid(fusion_weight), init -1.0"]
     C2 --> L
     L --> LOSS["Noise-robust losses:<br/>ELR + DSPT + DeFT + SupCon + semi-supervised"]
     LOSS --> STAB["GMM clean/noisy separation - label co-refinement<br/>EMA teacher self-distillation - SWA"]
@@ -189,7 +189,7 @@ bash scripts/train_p0.sh            # linear-head / no-augmentation control
 | Hyperparameter | Value | Notes |
 |---|---|---|
 | `model.image_size` | 384 | FixRes (bicubic 49→144 positional interpolation) |
-| `model.lora_r` / `lora_alpha` | 64 / 64 | QKV + MLP projections |
+| `model.lora_r` / `lora_alpha` | 64 / 64 | 36 adapted layers: `attn.out_proj` + MLP (`c_fc`/`c_proj`) per block |
 | `model.classifier_type` | cosine | prototype head in CLIP feature space |
 | `model.classifier_hidden_dim` | 512 | = CLIP feature dim → no projection, zero-shot init applies |
 | `model.use_prompt_learner` | True | CoOp-style, `n_ctx=16` |

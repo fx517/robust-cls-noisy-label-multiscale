@@ -89,7 +89,7 @@ The overall structure of the model is shown in Figure 2: a frozen CLIP ViT-B/32 
 
 ### 4.2 Backbone and Efficient LoRA Fine-Tuning
 
-The backbone adopts the OpenAI pre-trained CLIP ViT-B/32[1]; the vision encoder is a 12-layer Transformer that outputs 512-dimensional features. The backbone parameters remain frozen during training, and low-rank trainable matrices are injected via LoRA[2] into the attention layers (q_proj, v_proj, k_proj, out_proj) and the MLP layers (c_fc, c_proj), 36 layers in total (rank r=64, scaling alpha=64, dropout=0.1):
+The backbone adopts the OpenAI pre-trained CLIP ViT-B/32[1]; the vision encoder is a 12-layer Transformer that outputs 512-dimensional features. The backbone parameters remain frozen during training, and low-rank trainable matrices are injected via LoRA[2] into 36 linear layers in total — the attention output projection (`out_proj`) and the MLP projections (`c_fc`, `c_proj`) of every one of the 12 transformer blocks (in open_clip's CLIP attention, q/k/v are a single fused `in_proj` parameter rather than separate layers, so no LoRA is attached to them). Rank r=64, scaling alpha=64, dropout=0.1:
 
 $$ W' = W + \frac{\alpha}{r} B A $$
 
@@ -106,7 +106,7 @@ The classification head uses a cosine prototype classifier rather than an ordina
 | Component | Configuration |
 | --- | --- |
 | Backbone | CLIP ViT-B/32 (OpenAI pre-trained, frozen) |
-| Parameter-efficient fine-tuning | LoRA, r=64, alpha=64, dropout=0.1, injected into QKV+MLP, 36 layers in total |
+| Parameter-efficient fine-tuning | LoRA, r=64, alpha=64, dropout=0.1 — 36 adapted layers (`attn.out_proj` + MLP `c_fc`/`c_proj` per block) |
 | Input resolution | 384×384 (FixRes, positional embedding bicubically interpolated 49→144) |
 | Classification head | cosine prototype classifier, hidden_dim=512, CLIP text zero-shot initialization |
 | Trainable parameters | about 8.38 million / 160 million for the whole model (5.25%) |
