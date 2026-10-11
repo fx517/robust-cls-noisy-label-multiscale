@@ -168,8 +168,10 @@ python main.py \
 ### 5. Evaluate / predict
 
 ```bash
-# evaluation with TTA on the validation split
-bash scripts/eval.sh ./outputs/fixres384_hd512_dsp_deft/swa_model.pth webfg400
+# evaluation with TTA on the validation split —
+# pass the checkpoint's training resolution (FixRes checkpoints are resolution-specific)
+bash scripts/eval.sh ./outputs/fixres384_hd512_dsp_deft/swa_model.pth webfg400 ./data \
+    model.image_size=384 data.image_size=384
 
 # official test set -> pred_results.csv (20-view MultiScaleTTA, fp16)
 PYTHONPATH=. python scripts/predict_test.py \

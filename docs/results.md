@@ -29,7 +29,10 @@ development-time ablations behind the final recipe. All numbers are Top-1 accura
 | Internal noisy validation | single view | 79.49% |
 
 Submitted artifacts: `swa_model.pth` (SWA weights of the 384 chain,
-`exp_name = fixres384_hd512_dsp_deft`, produced by `scripts/predict_test.py --use_tta`).
+`exp_name = fixres384_hd512_dsp_deft`) and `results/pred_results.csv` — the official
+prediction file: 37,444 headerless `filename,class_id` rows (class ids 0–749), produced by
+`scripts/predict_test.py --use_tta` with the 20-view MultiScaleTTA. The checkpoint is
+attached to the [`v1.0.0` release](https://github.com/fx517/robust-cls-noisy-label-multiscale/releases/tag/v1.0.0).
 
 ## 3. Multi-scale TTA
 

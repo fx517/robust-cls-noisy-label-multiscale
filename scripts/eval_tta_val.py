@@ -55,7 +55,8 @@ def main():
     parser.add_argument("--resume", required=True, help="Best model checkpoint")
     parser.add_argument("--data_root", default="./data")
     parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--image_size", type=int, default=224)
+    parser.add_argument("--image_size", type=int, default=224,
+                        help="Fallback image size used only when the checkpoint stores no config")
     parser.add_argument("--use_ema", action="store_true", help="Use EMA teacher weights")
     args = parser.parse_args()
 
@@ -69,7 +70,12 @@ def main():
 
     print("Loading checkpoint...")
     checkpoint = torch.load(args.resume, map_location=device)
-    model = build_model(checkpoint, pretrained_path, num_classes, device, image_size=args.image_size)
+    # Adopt the resolution from the checkpoint config when present (FixRes checkpoints are
+    # resolution-specific); fall back to --image_size otherwise.
+    cfg = checkpoint.get("config", None)
+    image_size = int(getattr(cfg.model, "image_size", args.image_size)) if cfg is not None else args.image_size
+    print(f"image_size={image_size}")
+    model = build_model(checkpoint, pretrained_path, num_classes, device, image_size=image_size)
     model.load_state_dict(
         checkpoint["ema_teacher"]["shadow_state_dict"]
         if args.use_ema and "ema_teacher" in checkpoint
@@ -83,8 +89,8 @@ def main():
     test_root = f"{args.data_root}/test"
 
     # TTA val loader (multi-scale + flip transform) with the exact val split
-    train_transform = get_train_transforms(image_size=args.image_size)
-    tta_transform = get_test_transforms(image_size=args.image_size, crop_size=args.image_size, is_tta=True)
+    train_transform = get_train_transforms(image_size=image_size)
+    tta_transform = get_test_transforms(image_size=image_size, crop_size=image_size, is_tta=True)
     _, _, _, val_loader = get_dataloaders(
         train_root=train_root,
         test_root=test_root,
